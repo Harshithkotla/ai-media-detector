@@ -1,0 +1,22 @@
+# Ignore datasets
+datasets/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+desktop.ini
+.DS_Store
+
+# Model files (can be added later if large)
+*.h5
+*.pt
