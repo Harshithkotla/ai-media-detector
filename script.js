@@ -19,9 +19,9 @@ async function detectImage() {
   const confidenceEl = document.getElementById("confidence");
   const statusEl = document.getElementById("status");
 
-  // Reset UI
+  // 🔄 Reset UI + show loading state
   resultDiv.classList.remove("hidden");
-  predictionEl.innerText = "Analyzing image...";
+  predictionEl.innerText = "Analyzing image… please wait ⏳";
   confidenceEl.innerText = "";
   statusEl.innerText = "";
 
@@ -35,20 +35,24 @@ async function detectImage() {
     );
 
     if (!response.ok) {
-      throw new Error("Server error");
+      const errorText = await response.text();
+      throw new Error(errorText || "Server error");
     }
 
     const data = await response.json();
 
+    // ✅ Update UI with results
     predictionEl.innerText = "Prediction: " + data.prediction;
     confidenceEl.innerText =
       `Real: ${data.confidence_real}% | AI: ${data.confidence_ai}%`;
     statusEl.innerText = "Status: " + data.status;
 
   } catch (err) {
-    predictionEl.innerText = "Prediction failed";
-    confidenceEl.innerText = "";
-    statusEl.innerText = "Unable to connect to server";
-    console.error(err);
+    // ⚠️ Cold start / network error handling
+    resultDiv.classList.remove("hidden");
+    predictionEl.innerText = "Server is waking up ⏳";
+    confidenceEl.innerText = "Please try again in 20–30 seconds";
+    statusEl.innerText = "Free backend cold start";
+    console.error("Fetch error:", err);
   }
 }
