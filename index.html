@@ -130,32 +130,58 @@ function showFileName() {
 }
 
 async function detectImage() {
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return;
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
 
+  if (!file) {
+    alert("Please select an image first");
+    return;
+  }
+
+  // Preview image
   document.getElementById("preview").innerHTML =
-    `<img src="${URL.createObjectURL(file)}">`;
+    `<img src="${URL.createObjectURL(file)}" />`;
 
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("http://127.0.0.1:8000/detect/image", {
-    method: "POST",
-    body: formData
-  });
+  const resultDiv = document.getElementById("result");
+  const predictionEl = document.getElementById("prediction");
+  const confidenceEl = document.getElementById("confidence");
+  const statusEl = document.getElementById("status");
 
-  const data = await res.json();
+  // Loading state
+  resultDiv.classList.remove("hidden");
+  predictionEl.innerText = "Analyzing image… please wait ⏳";
+  confidenceEl.innerText = "";
+  statusEl.innerText = "";
 
-  document.getElementById("prediction").innerText =
-    "Prediction: " + data.prediction;
+  try {
+    const response = await fetch(
+      "https://ai-media-detector.onrender.com/detect/image",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
 
-  document.getElementById("confidence").innerText =
-    `Real: ${data.confidence_real}% | AI: ${data.confidence_ai}%`;
+    if (!response.ok) {
+      throw new Error("Server error");
+    }
 
-  document.getElementById("status").innerText =
-    "Status: " + data.status;
+    const data = await response.json();
 
-  document.getElementById("result").classList.remove("hidden");
+    predictionEl.innerText = "Prediction: " + data.prediction;
+    confidenceEl.innerText =
+      `Real: ${data.confidence_real}% | AI: ${data.confidence_ai}%`;
+    statusEl.innerText = "Status: " + data.status;
+
+  } catch (err) {
+    predictionEl.innerText = "Server is waking up ⏳";
+    confidenceEl.innerText = "Please try again in 20–30 seconds";
+    statusEl.innerText = "Free backend cold start";
+    console.error(err);
+  }
 }
 </script>
 
