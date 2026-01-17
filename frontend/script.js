@@ -3,7 +3,7 @@ async function detectImage() {
   const file = fileInput.files[0];
 
   if (!file) {
-    alert("Please select an image");
+    alert("Please select an image first");
     return;
   }
 
@@ -15,29 +15,40 @@ async function detectImage() {
   formData.append("file", file);
 
   const resultDiv = document.getElementById("result");
-  resultDiv.classList.add("hidden");
+  const predictionEl = document.getElementById("prediction");
+  const confidenceEl = document.getElementById("confidence");
+  const statusEl = document.getElementById("status");
+
+  // Reset UI
+  resultDiv.classList.remove("hidden");
+  predictionEl.innerText = "Analyzing image...";
+  confidenceEl.innerText = "";
+  statusEl.innerText = "";
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/detect/image", {
-      method: "POST",
-      body: formData
-    });
+    const response = await fetch(
+      "https://ai-media-detector.onrender.com/detect/image",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Server error");
+    }
 
     const data = await response.json();
 
-    document.getElementById("prediction").innerText =
-      "Prediction: " + data.prediction;
-
-    document.getElementById("confidence").innerText =
+    predictionEl.innerText = "Prediction: " + data.prediction;
+    confidenceEl.innerText =
       `Real: ${data.confidence_real}% | AI: ${data.confidence_ai}%`;
-
-    document.getElementById("status").innerText =
-      "Status: " + data.status;
-
-    resultDiv.classList.remove("hidden");
+    statusEl.innerText = "Status: " + data.status;
 
   } catch (err) {
-    alert("Error connecting to server");
+    predictionEl.innerText = "Prediction failed";
+    confidenceEl.innerText = "";
+    statusEl.innerText = "Unable to connect to server";
     console.error(err);
   }
 }
