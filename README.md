@@ -76,3 +76,6 @@ This behavior aligns with current academic research and real-world AI detection 
   "status": "uncertain",
   "note": "High-quality AI images may be indistinguishable from real photos."
 }
+### 🔗 Live Demo
+- Frontend: https://harshithkotla.github.io/ai-media-detector/
+- Backend API: https://ai-media-detector.onrender.com
